@@ -101,6 +101,12 @@
   .hint { position: absolute; z-index: 5; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); left: 0; right: 0; text-align: center; font-size: 13px; opacity: .7; pointer-events: none; }
   .story.on-light .hint { color: var(--ink); }
 
+  .sound { position: absolute; z-index: 7; top: calc(env(safe-area-inset-top, 0px) + 20px); right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.18); color: inherit; cursor: pointer; }
+  .story.on-light .sound { background: rgba(14,26,79,.08); color: var(--ink); }
+  .sound .x { display: none; }
+  .sound.muted .x { display: inline; }
+  .sound.muted .wave { display: none; }
+  .sound:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
   .tap { position: absolute; z-index: 4; top: 60px; bottom: 0; }
   .tap.prev { left: 0; width: 32%; }
   .tap.next { right: 0; width: 68%; }
@@ -120,6 +126,10 @@
     <button class="tap prev" id="tap-prev" aria-label="Previous slide" style="background:none;border:0"></button>
     <button class="tap next" id="tap-next" aria-label="Next slide" style="background:none;border:0"></button>
     <div class="hint" id="hint">Tap to continue · hold to pause</div>
+    <button type="button" class="sound" id="sound-btn" aria-label="Mute music" hidden>
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"></path><path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"></path><path class="wave" d="M18.5 5.5a9 9 0 0 1 0 13"></path><path class="x" d="m16 9 5 6M21 9l-5 6"></path></svg>
+    </button>
+    <audio id="bgm" src="piano.mp3" loop preload="auto"></audio>
   </div>
 </div>
 
@@ -300,6 +310,34 @@ var BABY = {
   slides.forEach(function () { var b = el('div', 'bar'); b.appendChild(el('i')); barsEl.appendChild(b); });
   var fills = barsEl.querySelectorAll('.bar i');
 
+  var bgm = document.getElementById('bgm');
+  var soundBtn = document.getElementById('sound-btn');
+  var muted = false, musicOn = false, fadeT = null, TARGET = 0.55;
+  function fadeTo(v, ms) {
+    clearInterval(fadeT);
+    var start = bgm.volume, t0 = performance.now();
+    fadeT = setInterval(function () {
+      var k = Math.min(1, (performance.now() - t0) / ms);
+      bgm.volume = Math.max(0, Math.min(1, start + (v - start) * k));
+      if (k >= 1) clearInterval(fadeT);
+    }, 50);
+  }
+  function startMusic() {
+    if (musicOn) { fadeTo(muted ? 0 : TARGET, 800); return; }
+    musicOn = true; soundBtn.hidden = false;
+    bgm.volume = 0;
+    var pr = bgm.play();
+    if (pr && pr.catch) pr.catch(function () { musicOn = false; soundBtn.hidden = true; });
+    if (!muted) fadeTo(TARGET, 2000);
+  }
+  soundBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    muted = !muted;
+    soundBtn.classList.toggle('muted', muted);
+    soundBtn.setAttribute('aria-label', muted ? 'Play music' : 'Mute music');
+    if (muted) fadeTo(0, 400); else { if (bgm.paused) bgm.play().catch(function () {}); fadeTo(TARGET, 600); }
+  });
+
   var idx = 0, timer = null, startAt = 0, elapsed = 0, paused = false, raf = null;
 
   function paintBars() {
@@ -326,13 +364,14 @@ var BABY = {
     fills[idx].style.width = slides[idx].auto ? '0%' : '100%';
     paintBars();
     hint.hidden = !slides[idx].auto;
+    if (musicOn && !muted) fadeTo(idx === slides.length - 1 ? 0.25 : TARGET, 1500);
     elapsed = 0; startAt = performance.now(); paused = false;
     if (slides[idx].auto) raf = requestAnimationFrame(tick);
   }
   function next() { if (idx < slides.length - 1) show(idx + 1); }
   function prev() { show(idx - 1); }
 
-  document.getElementById('tap-next').addEventListener('click', function () { if (idx === 0) return show(1); next(); });
+  document.getElementById('tap-next').addEventListener('click', function () { if (idx === 0) { startMusic(); return show(1); } next(); });
   document.getElementById('tap-prev').addEventListener('click', prev);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
@@ -340,8 +379,8 @@ var BABY = {
   });
 
   // hold to pause
-  function hold() { if (!slides[idx].auto || paused) return; paused = true; elapsed += performance.now() - startAt; cancelAnimationFrame(raf); }
-  function release() { if (!paused) return; paused = false; startAt = performance.now(); raf = requestAnimationFrame(tick); }
+  function hold() { if (musicOn) bgm.pause(); if (!slides[idx].auto || paused) return; paused = true; elapsed += performance.now() - startAt; cancelAnimationFrame(raf); }
+  function release() { if (musicOn && !muted) bgm.play().catch(function () {}); if (!paused) return; paused = false; startAt = performance.now(); raf = requestAnimationFrame(tick); }
   story.addEventListener('pointerdown', function () { holdT = setTimeout(hold, 220); });
   var holdT = null;
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
@@ -350,8 +389,8 @@ var BABY = {
   document.addEventListener('visibilitychange', function () { if (document.hidden) hold(); else release(); });
 
   slidesEl.addEventListener('click', function (e) {
-    if (e.target.id === 'start-btn') { e.stopPropagation(); show(1); }
-    if (e.target.id === 'replay-btn') { e.stopPropagation(); show(1); }
+    if (e.target.id === 'start-btn') { e.stopPropagation(); startMusic(); show(1); }
+    if (e.target.id === 'replay-btn') { e.stopPropagation(); startMusic(); show(1); }
     if (e.target.id === 'share-btn') {
       e.stopPropagation();
       var url = location.href.split('#')[0];
