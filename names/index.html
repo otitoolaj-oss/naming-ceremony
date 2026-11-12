@@ -65,6 +65,11 @@
   .bg-blue .meaning { background: var(--white); color: var(--blue); box-shadow: 6px 6px 0 var(--ink); }
   .bg-ink .meaning { background: var(--sky); color: var(--ink); box-shadow: 6px 6px 0 var(--blue); }
   .bg-sky .meaning, .bg-white .meaning { background: var(--blue); color: var(--white); box-shadow: 6px 6px 0 var(--ink); }
+  .name-h { margin: 0; font-weight: 800; font-size: clamp(36px, 11.3vw, 48px); line-height: .95; letter-spacing: -.03em; overflow-wrap: anywhere; }
+  .name-h.solo { font-size: clamp(56px, 18.5vw, 80px); }
+  .bg-white .name-h { color: var(--blue); }
+  .squiggle { display: block; width: 220px; height: 24px; margin-top: 14px; color: currentColor; }
+  .bg-white .squiggle { color: var(--ink); }
   .say { margin: 14px 0 0; font-size: 17px; opacity: .85; }
   .from { margin: 18px 0 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 
@@ -110,7 +115,7 @@
 <div class="stage">
   <div class="story" id="story" aria-live="polite">
     <div class="bars" id="bars" aria-hidden="true"></div>
-    <div class="brand" aria-hidden="true">Baby Otitoola · Wrapped</div>
+    <div class="brand" aria-hidden="true">Baby Names. Reveal</div>
     <div id="slides"></div>
     <button class="tap prev" id="tap-prev" aria-label="Previous slide" style="background:none;border:0"></button>
     <button class="tap next" id="tap-next" aria-label="Next slide" style="background:none;border:0"></button>
@@ -128,28 +133,27 @@ var BABY = {
   parents: 'Seun & Bimbo',
   photo: '../face-760.jpg',
   names: [
-    { name: '[Name 1]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 2]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 3]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 4]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 5]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 6]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 7]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 8]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 9]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' },
-    { name: '[Name 10]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by [who]' }
+    { name: "Olúwátamílọ́rẹ", meaning: "The Lord has blessed me with a gift" },
+    { name: "Olúwaṣorefúnmi", meaning: "God has done a favour for me" },
+    { name: "Julian", meaning: "Youthful" },
+    { name: "Ìshọ̀lá", meaning: "The bringer of wealth" },
+    { name: "Olúwadárasími", meaning: "God is good to me" },
+    { name: "Olúwashínàayọ̀mi", meaning: "The Lord opened a way of joy for me" },
+    { name: "Rerelolúwa", meaning: "The Lord is good" },
+    { name: "Thomas", meaning: "" },
+    { name: "Ọlájíre", meaning: "(The child of) wealth woke up well" },
+    { name: "Olúwalànàire", meaning: "God has opened the path of goodness" }
   ],
   stats: [
-    { label: 'Most played sound', value: 'Mum’s voice' },
-    { label: 'Top activity', value: 'Sleeping (just not at night)' },
-    { label: 'Hours of sleep his parents lost', value: 'Too many to count' }
+    { label: 'Most played sound', value: 'Mum\u2019s voice' },
+    { label: 'Top activity', value: 'Sleeping and eating (at all hours of the day)' }
   ]
 };
 /* ============================================================ */
 
 (function () {
   var themes = ['bg-blue', 'bg-ink', 'bg-sky', 'bg-white'];
-  var DURATION = 6500;
+  var DURATION = 5000;
   var slidesEl = document.getElementById('slides');
   var barsEl = document.getElementById('bars');
   var story = document.getElementById('story');
@@ -167,7 +171,7 @@ var BABY = {
     String(text).split(' ').forEach(function (word, w) {
       if (w > 0) h.appendChild(document.createTextNode(' '));
       var wrap = el('span'); wrap.style.display = 'inline-block'; wrap.style.whiteSpace = 'nowrap';
-      word.split('').forEach(function (ch) {
+      (word.match(/\P{M}\p{M}*/gu) || []).forEach(function (ch) {
         var s = el('span', 'rise', ch);
         s.style.animationDelay = (0.04 * n++ + 0.15) + 's';
         wrap.appendChild(s);
@@ -210,7 +214,7 @@ var BABY = {
     s.appendChild(spark('#FFFFFF', 46, { top: '22%', right: '14%' }));
     s.appendChild(el('p', 'kicker', 'Your story is ready'));
     s.appendChild(risingWord('Meet Baby ' + BABY.surname, 'big'));
-    s.appendChild(el('p', 'sub pop', 'A few weeks, a lot of love, and some very big news. Tap through to meet him properly.'));
+    s.appendChild(el('p', 'sub pop', '7 days ago, this young man walked into our world. Tap through to meet him properly.'));
     var b = el('button', 'start-btn pop', 'Tap to start');
     b.style.setProperty('--d', '.9s'); b.type = 'button'; b.id = 'start-btn';
     s.appendChild(b);
@@ -219,7 +223,7 @@ var BABY = {
   // 2. stats
   add('bg-ink', function (s) {
     s.appendChild(blob('rgba(31,63,216,.55)', '360px', { bottom: '-140px', left: '-120px' }));
-    s.appendChild(el('p', 'kicker', 'His year so far'));
+    s.appendChild(el('p', 'kicker', 'His week so far'));
     var list = el('div', 'pop'); list.style.setProperty('--d', '.2s');
     BABY.stats.forEach(function (st) {
       var row = el('div', 'stat');
@@ -236,7 +240,7 @@ var BABY = {
     s.appendChild(spark('#1F3FD8', 26, { bottom: '24%', right: '16%' }));
     s.appendChild(el('p', 'kicker', 'But you came for one thing'));
     s.appendChild(risingWord('His names.', 'huge'));
-    s.appendChild(el('p', 'sub pop', BABY.names.length + ' names. ' + BABY.names.length + ' prayers. Here they are.'));
+    s.appendChild(el('p', 'sub pop', '11 names. Here they are.'));
   });
 
   // 4. each name
@@ -248,12 +252,21 @@ var BABY = {
       s.appendChild(spark(c, 34, { top: '20%', right: '12%' }));
       var chip = el('span', 'chip', 'Name ' + (i + 1) + ' of ' + BABY.names.length);
       s.appendChild(chip);
-      var h = risingWord(n.name, 'huge'); h.style.marginTop = '22px';
+      var h = risingWord(n.name, 'name-h'); h.style.marginTop = '22px';
+      if (!n.meaning) h.classList.add('solo');
       s.appendChild(h);
-      if (n.say) { var say = el('p', 'say pop', 'Say it: ' + n.say); say.style.setProperty('--d', '.7s'); s.appendChild(say); }
-      var m = el('p', 'meaning pop', '“' + n.meaning + '”'); m.style.setProperty('--d', '1s');
-      s.appendChild(m);
-      if (n.from) { var f = el('p', 'from pop', n.from); f.style.setProperty('--d', '1.3s'); s.appendChild(f); }
+      if (n.meaning) {
+        var m = el('p', 'meaning pop', '\u201c' + n.meaning + '\u201d'); m.style.setProperty('--d', '.9s');
+        s.appendChild(m);
+      } else {
+        var sq = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        sq.setAttribute('viewBox', '0 0 300 22'); sq.setAttribute('preserveAspectRatio', 'none'); sq.setAttribute('aria-hidden', 'true');
+        sq.setAttribute('class', 'squiggle pop'); sq.style.setProperty('--d', '.9s');
+        var sp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        sp.setAttribute('d', 'M4 12 Q 22 0 40 12 T 76 12 T 112 12 T 148 12 T 184 12 T 220 12 T 256 12 T 292 12');
+        sp.setAttribute('fill', 'none'); sp.setAttribute('stroke', 'currentColor'); sp.setAttribute('stroke-width', '4'); sp.setAttribute('stroke-linecap', 'round');
+        sq.appendChild(sp); s.appendChild(sq);
+      }
     });
   });
 
@@ -266,7 +279,7 @@ var BABY = {
     pol.appendChild(img); s.appendChild(pol);
     s.appendChild(el('p', 'kicker', 'Welcome to the world'));
     var full = BABY.names.map(function (n) { return n.name; }).join(' ') + ' ' + BABY.surname;
-    var h = el('h2', 'big display pop', full); h.style.setProperty('--d', '.5s'); h.style.fontSize = 'clamp(34px, 10vw, 52px)';
+    var h = el('h2', 'big display pop', full); h.style.setProperty('--d', '.5s'); h.style.fontSize = 'clamp(22px, 6.7vw, 28px)'; h.style.lineHeight = '1.15';
     s.appendChild(h);
   });
 
