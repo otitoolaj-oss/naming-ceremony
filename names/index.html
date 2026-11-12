@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meet Baby Otitoola</title>
+<meta name="description" content="Tap through to meet our little one and the names he was given.">
+<meta property="og:title" content="Meet Baby Otitoola: his names, wrapped">
+<meta property="og:description" content="Tap through to meet our little one and the names he was given.">
+<meta property="og:image" content="https://otitoolaj-oss.github.io/naming-ceremony/hands-760.jpg">
+<meta name="theme-color" content="#1F3FD8">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..900,0..100,0..1;1,9..144,400..900,0..100,0..1&family=Space+Grotesk:wght@400..700&display=swap">
+<style>
+  /* Full-screen story, one slide at a time, like a year-in-review. */
+  :root {
+    --white: #FFFFFF;
+    --ink: #0E1A4F;
+    --blue: #1F3FD8;
+    --sky: #E3EAFF;
+    --soft: #4A557F;
+    --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --body: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ink); }
+  body { font-family: var(--body); color: var(--white); overflow: hidden; -webkit-tap-highlight-color: transparent; user-select: none; }
+  .display { font-family: var(--display); font-variation-settings: 'SOFT' 100, 'WONK' 1; }
+
+  .stage { position: fixed; inset: 0; display: flex; justify-content: center; }
+  .story { position: relative; width: 100%; max-width: 480px; height: 100%; overflow: hidden; }
+
+  /* progress */
+  .bars { position: absolute; z-index: 5; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; right: 12px; display: flex; gap: 5px; }
+  .bar { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,.35); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--white); }
+  .story.on-light .bar { background: rgba(14,26,79,.2); }
+  .story.on-light .bar i { background: var(--ink); }
+  .brand { position: absolute; z-index: 5; top: calc(env(safe-area-inset-top, 0px) + 26px); left: 16px; font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .85; }
+  .story.on-light .brand { color: var(--ink); }
+
+  /* slides */
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 96px 28px calc(env(safe-area-inset-bottom, 0px) + 64px); opacity: 0; visibility: hidden; transition: opacity .35s ease; }
+  .slide.active { opacity: 1; visibility: visible; }
+  .bg-blue { background: var(--blue); color: var(--white); }
+  .bg-ink { background: var(--ink); color: var(--white); }
+  .bg-sky { background: var(--sky); color: var(--ink); }
+  .bg-white { background: var(--white); color: var(--ink); }
+
+  .kicker { font-size: 15px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; margin: 0 0 18px; opacity: .85; }
+  .big { margin: 0; font-weight: 800; font-size: clamp(44px, 13vw, 64px); line-height: .98; letter-spacing: -.03em; }
+  .huge { margin: 0; font-weight: 800; font-size: clamp(64px, 22vw, 112px); line-height: .9; letter-spacing: -.04em; word-break: break-word; }
+  .sub { margin: 22px 0 0; font-size: 19px; line-height: 1.45; max-width: 30ch; }
+  .muted { opacity: .8; }
+
+  .stat { display: flex; flex-direction: column; gap: 6px; padding: 18px 0; border-top: 2px solid currentColor; }
+  .stat:last-child { border-bottom: 2px solid currentColor; }
+  .stat span { font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; opacity: .8; }
+  .stat b { font-family: var(--display); font-size: 30px; line-height: 1.1; font-weight: 700; }
+
+  .chip { align-self: flex-start; display: inline-block; padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: 15px; letter-spacing: .04em; border: 2px solid currentColor; }
+  .meaning { margin: 26px 0 0; padding: 20px 22px; border-radius: 20px; font-family: var(--display); font-style: italic; font-weight: 600; font-size: 26px; line-height: 1.25; }
+  .bg-blue .meaning { background: var(--white); color: var(--blue); box-shadow: 6px 6px 0 var(--ink); }
+  .bg-ink .meaning { background: var(--sky); color: var(--ink); box-shadow: 6px 6px 0 var(--blue); }
+  .bg-sky .meaning, .bg-white .meaning { background: var(--blue); color: var(--white); box-shadow: 6px 6px 0 var(--ink); }
+  .say { margin: 14px 0 0; font-size: 17px; opacity: .85; }
+  .from { margin: 18px 0 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+
+  /* motion: letters rise in when a slide opens */
+  .rise { display: inline-block; opacity: 0; transform: translateY(.5em) rotate(4deg); }
+  .slide.active .rise { animation: rise .6s cubic-bezier(.2,.9,.3,1.2) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .pop { opacity: 0; transform: scale(.9); }
+  .slide.active .pop { animation: pop .5s ease-out forwards; animation-delay: var(--d, .5s); }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+
+  /* shapes */
+  .blob { position: absolute; border-radius: 50%; pointer-events: none; }
+  .slide.active .blob { animation: drift 9s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: translate(18px, -24px) scale(1.08); } }
+  .spark { position: absolute; pointer-events: none; }
+
+  .polaroid { align-self: center; background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); padding: 10px 10px 36px; transform: rotate(-3deg); width: min(72%, 300px); margin-bottom: 28px; }
+  .polaroid img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+
+  /* start + end */
+  .start-btn, .end-btn { font: inherit; font-weight: 700; font-size: 18px; border: 3px solid var(--ink); border-radius: 999px; padding: 16px 28px; min-height: 56px; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); }
+  .start-btn { background: var(--white); color: var(--blue); align-self: flex-start; margin-top: 34px; }
+  .end-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; justify-content: center; }
+  .end-btn { background: var(--blue); color: var(--white); }
+  .end-btn.alt { background: var(--white); color: var(--ink); }
+  .start-btn:focus-visible, .end-btn:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+
+  .hint { position: absolute; z-index: 5; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); left: 0; right: 0; text-align: center; font-size: 13px; opacity: .7; pointer-events: none; }
+  .story.on-light .hint { color: var(--ink); }
+
+  .tap { position: absolute; z-index: 4; top: 60px; bottom: 0; }
+  .tap.prev { left: 0; width: 32%; }
+  .tap.next { right: 0; width: 68%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rise, .pop { opacity: 1 !important; transform: none !important; animation: none !important; }
+    .slide.active .blob { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="story" id="story" aria-live="polite">
+    <div class="bars" id="bars" aria-hidden="true"></div>
+    <div class="brand" aria-hidden="true">Baby Otitoola · Wrapped</div>
+    <div id="slides"></div>
+    <button class="tap prev" id="tap-prev" aria-label="Previous slide" style="background:none;border:0"></button>
+    <button class="tap next" id="tap-next" aria-label="Next slide" style="background:none;border:0"></button>
+    <div class="hint" id="hint">Tap to continue · hold to pause</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EDIT HERE: his names, meanings and who gave them.
+   Add or remove names; the story adjusts automatically.
+   ============================================================ */
+var BABY = {
+  surname: 'Otitoola',
+  parents: 'Seun & Bimbo',
+  photo: '../face-760.jpg',
+  names: [
+    { name: '[Name 1]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by Dad' },
+    { name: '[Name 2]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by Mum' },
+    { name: '[Name 3]', say: '[how to say it]', meaning: '[What this name means]', from: 'Given by Grandma' }
+  ],
+  stats: [
+    { label: 'Most played sound', value: 'Mum’s voice' },
+    { label: 'Top activity', value: 'Sleeping (just not at night)' },
+    { label: 'Hours of sleep his parents lost', value: 'Too many to count' }
+  ]
+};
+/* ============================================================ */
+
+(function () {
+  var themes = ['bg-blue', 'bg-ink', 'bg-sky', 'bg-white'];
+  var DURATION = 6500;
+  var slidesEl = document.getElementById('slides');
+  var barsEl = document.getElementById('bars');
+  var story = document.getElementById('story');
+  var hint = document.getElementById('hint');
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function risingWord(text, cls) {
+    var h = el('h2', cls + ' display');
+    var n = 0;
+    String(text).split(' ').forEach(function (word, w) {
+      if (w > 0) h.appendChild(document.createTextNode(' '));
+      var wrap = el('span'); wrap.style.display = 'inline-block'; wrap.style.whiteSpace = 'nowrap';
+      word.split('').forEach(function (ch) {
+        var s = el('span', 'rise', ch);
+        s.style.animationDelay = (0.04 * n++ + 0.15) + 's';
+        wrap.appendChild(s);
+      });
+      h.appendChild(wrap);
+    });
+    return h;
+  }
+  function spark(color, size, pos) {
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', size); s.setAttribute('height', size);
+    s.setAttribute('aria-hidden', 'true'); s.setAttribute('class', 'spark');
+    Object.keys(pos).forEach(function (k) { s.style[k] = pos[k]; });
+    var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', 'M12 2 C13 8 16 11 22 12 C16 13 13 16 12 22 C11 16 8 13 2 12 C8 11 11 8 12 2 Z');
+    p.setAttribute('fill', color);
+    s.appendChild(p);
+    return s;
+  }
+  function blob(color, size, pos) {
+    var b = el('div', 'blob');
+    b.style.background = color; b.style.width = size; b.style.height = size;
+    Object.keys(pos).forEach(function (k) { b.style[k] = pos[k]; });
+    b.setAttribute('aria-hidden', 'true');
+    return b;
+  }
+
+  var slides = [];
+  function add(theme, build, opts) {
+    var s = el('section', 'slide ' + theme);
+    s.setAttribute('aria-roledescription', 'slide');
+    build(s);
+    slides.push({ node: s, light: theme === 'bg-sky' || theme === 'bg-white', auto: !(opts && opts.manual) });
+    slidesEl.appendChild(s);
+  }
+
+  // 1. start
+  add('bg-blue', function (s) {
+    s.appendChild(blob('rgba(255,255,255,.12)', '320px', { top: '-80px', right: '-120px' }));
+    s.appendChild(spark('#FFFFFF', 46, { top: '22%', right: '14%' }));
+    s.appendChild(el('p', 'kicker', 'Your story is ready'));
+    s.appendChild(risingWord('Meet Baby ' + BABY.surname, 'big'));
+    s.appendChild(el('p', 'sub pop', 'A few weeks, a lot of love, and some very big news. Tap through to meet him properly.'));
+    var b = el('button', 'start-btn pop', 'Tap to start');
+    b.style.setProperty('--d', '.9s'); b.type = 'button'; b.id = 'start-btn';
+    s.appendChild(b);
+  }, { manual: true });
+
+  // 2. stats
+  add('bg-ink', function (s) {
+    s.appendChild(blob('rgba(31,63,216,.55)', '360px', { bottom: '-140px', left: '-120px' }));
+    s.appendChild(el('p', 'kicker', 'His year so far'));
+    var list = el('div', 'pop'); list.style.setProperty('--d', '.2s');
+    BABY.stats.forEach(function (st) {
+      var row = el('div', 'stat');
+      row.appendChild(el('span', null, st.label));
+      row.appendChild(el('b', null, st.value));
+      list.appendChild(row);
+    });
+    s.appendChild(list);
+  });
+
+  // 3. tease
+  add('bg-sky', function (s) {
+    s.appendChild(spark('#1F3FD8', 60, { top: '18%', left: '12%' }));
+    s.appendChild(spark('#1F3FD8', 26, { bottom: '24%', right: '16%' }));
+    s.appendChild(el('p', 'kicker', 'But you came for one thing'));
+    s.appendChild(risingWord('His names.', 'huge'));
+    s.appendChild(el('p', 'sub pop', BABY.names.length + ' names. ' + BABY.names.length + ' prayers. Here they are.'));
+  });
+
+  // 4. each name
+  BABY.names.forEach(function (n, i) {
+    var theme = ['bg-blue', 'bg-white', 'bg-ink'][i % 3];
+    add(theme, function (s) {
+      var c = theme === 'bg-white' ? '#1F3FD8' : '#FFFFFF';
+      s.appendChild(blob(theme === 'bg-white' ? '#E3EAFF' : 'rgba(255,255,255,.1)', '300px', { top: '-60px', right: '-110px' }));
+      s.appendChild(spark(c, 34, { top: '20%', right: '12%' }));
+      var chip = el('span', 'chip', 'Name ' + (i + 1) + ' of ' + BABY.names.length);
+      s.appendChild(chip);
+      var h = risingWord(n.name, 'huge'); h.style.marginTop = '22px';
+      s.appendChild(h);
+      if (n.say) { var say = el('p', 'say pop', 'Say it: ' + n.say); say.style.setProperty('--d', '.7s'); s.appendChild(say); }
+      var m = el('p', 'meaning pop', '“' + n.meaning + '”'); m.style.setProperty('--d', '1s');
+      s.appendChild(m);
+      if (n.from) { var f = el('p', 'from pop', n.from); f.style.setProperty('--d', '1.3s'); s.appendChild(f); }
+    });
+  });
+
+  // 5. full name + photo
+  add('bg-blue', function (s) {
+    s.appendChild(blob('rgba(255,255,255,.12)', '380px', { bottom: '-160px', right: '-140px' }));
+    s.appendChild(spark('#FFFFFF', 40, { top: '16%', left: '10%' }));
+    var pol = el('div', 'polaroid pop'); pol.style.setProperty('--d', '.15s');
+    var img = el('img'); img.src = BABY.photo; img.alt = 'Baby ' + BABY.surname + ' asleep in a knitted beanie'; img.width = 760; img.height = 760;
+    pol.appendChild(img); s.appendChild(pol);
+    s.appendChild(el('p', 'kicker', 'Welcome to the world'));
+    var full = BABY.names.map(function (n) { return n.name; }).join(' ') + ' ' + BABY.surname;
+    var h = el('h2', 'big display pop', full); h.style.setProperty('--d', '.5s'); h.style.fontSize = 'clamp(34px, 10vw, 52px)';
+    s.appendChild(h);
+  });
+
+  // 6. end
+  add('bg-white', function (s) {
+    s.style.alignItems = 'center'; s.style.textAlign = 'center';
+    s.appendChild(spark('#1F3FD8', 64, { top: '20%', left: 'calc(50% - 32px)' }));
+    s.appendChild(risingWord('Thank you for being here.', 'big'));
+    s.appendChild(el('p', 'sub pop', 'With joy & gratitude, ' + BABY.parents + '.'));
+    var row = el('div', 'end-row pop'); row.style.setProperty('--d', '.9s');
+    var again = el('button', 'end-btn', 'Watch again'); again.type = 'button'; again.id = 'replay-btn';
+    var share = el('button', 'end-btn alt', 'Share'); share.type = 'button'; share.id = 'share-btn';
+    row.appendChild(again); row.appendChild(share);
+    s.appendChild(row);
+  }, { manual: true });
+
+  // progress bars
+  slides.forEach(function () { var b = el('div', 'bar'); b.appendChild(el('i')); barsEl.appendChild(b); });
+  var fills = barsEl.querySelectorAll('.bar i');
+
+  var idx = 0, timer = null, startAt = 0, elapsed = 0, paused = false, raf = null;
+
+  function paintBars() {
+    for (var i = 0; i < fills.length; i++) {
+      fills[i].style.width = i < idx ? '100%' : (i > idx ? '0%' : fills[i].style.width);
+    }
+  }
+  function tick() {
+    if (paused || !slides[idx].auto) return;
+    var t = elapsed + (performance.now() - startAt);
+    var p = Math.min(1, t / DURATION);
+    fills[idx].style.width = (p * 100) + '%';
+    if (p >= 1) { next(); return; }
+    raf = requestAnimationFrame(tick);
+  }
+  function show(i) {
+    cancelAnimationFrame(raf);
+    idx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) {
+      s.node.classList.toggle('active', k === idx);
+      s.node.setAttribute('aria-hidden', k === idx ? 'false' : 'true');
+    });
+    story.classList.toggle('on-light', slides[idx].light);
+    fills[idx].style.width = slides[idx].auto ? '0%' : '100%';
+    paintBars();
+    hint.hidden = !slides[idx].auto;
+    elapsed = 0; startAt = performance.now(); paused = false;
+    if (slides[idx].auto) raf = requestAnimationFrame(tick);
+  }
+  function next() { if (idx < slides.length - 1) show(idx + 1); }
+  function prev() { show(idx - 1); }
+
+  document.getElementById('tap-next').addEventListener('click', function () { if (idx === 0) return show(1); next(); });
+  document.getElementById('tap-prev').addEventListener('click', prev);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') prev();
+  });
+
+  // hold to pause
+  function hold() { if (!slides[idx].auto || paused) return; paused = true; elapsed += performance.now() - startAt; cancelAnimationFrame(raf); }
+  function release() { if (!paused) return; paused = false; startAt = performance.now(); raf = requestAnimationFrame(tick); }
+  story.addEventListener('pointerdown', function () { holdT = setTimeout(hold, 220); });
+  var holdT = null;
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+    story.addEventListener(ev, function () { clearTimeout(holdT); release(); });
+  });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) hold(); else release(); });
+
+  slidesEl.addEventListener('click', function (e) {
+    if (e.target.id === 'start-btn') { e.stopPropagation(); show(1); }
+    if (e.target.id === 'replay-btn') { e.stopPropagation(); show(1); }
+    if (e.target.id === 'share-btn') {
+      e.stopPropagation();
+      var url = location.href.split('#')[0];
+      if (navigator.share) { navigator.share({ title: 'Meet Baby ' + BABY.surname, url: url }).catch(function () {}); }
+      else if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function () { e.target.textContent = 'Link copied'; }, function () {}); }
+    }
+  });
+  // buttons sit above the tap zones
+  ['start-btn', 'replay-btn', 'share-btn'].forEach(function (id) {
+    var b = document.getElementById(id); b.style.position = 'relative'; b.style.zIndex = 6;
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
