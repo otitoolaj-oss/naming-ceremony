@@ -299,13 +299,18 @@
       <p class="error" id="form-error" hidden>Please add your name so we know who's replying.</p>
       <button type="submit" class="send" id="send-btn">Send my RSVP</button>
     </form>
-    <div id="thanks" tabindex="-1" hidden style="display:flex;flex-direction:column;gap:10px;outline:none">
-      <h3 id="thanks-title" class="display" style="margin:0;font-size:clamp(26px,5vw,34px);line-height:1.1;color:var(--blue)">Thank you!</h3>
-      <p id="thanks-text" style="margin:0">Your RSVP is in.</p>
-    </div>
     <p class="after">Trouble sending? Message or call us on <strong id="phone">0813 151 3616</strong> <button type="button" class="copy" id="copy-btn">Copy number</button></p>
   </section>
 </main>
+<section id="thanks" tabindex="-1" hidden aria-live="polite" style="min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding-block:48px;outline:none">
+  <div style="max-width:520px;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center">
+    <svg aria-hidden="true" width="72" height="72" viewBox="0 0 24 24"><path d="M12 2 C13 8 16 11 22 12 C16 13 13 16 12 22 C11 16 8 13 2 12 C8 11 11 8 12 2 Z" fill="#1F3FD8"></path></svg>
+    <h1 id="thanks-title" class="display" style="margin:0;font-weight:800;font-size:clamp(40px,10vw,64px);line-height:1;letter-spacing:-0.02em">Thank you!</h1>
+    <p id="thanks-text" style="margin:0;font-size:19px;color:var(--ink-soft);max-width:36ch">Your RSVP is in.</p>
+    <p class="label" style="margin:8px 0 0;color:var(--ink)">With joy &amp; gratitude, Seun &amp; Bimbo</p>
+  </div>
+</section>
+
 <div id="sending" hidden role="status" aria-live="polite" style="position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;padding:24px">
   <div style="display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center">
     <div class="spinner" aria-hidden="true"></div>
@@ -376,13 +381,13 @@
       .then(function (res) {
         if (!res || !res.ok) return fail();
         sending.hidden = true;
-        form.hidden = true;
-        thanksTitle.textContent = 'Thank you, ' + name.split(' ')[0] + '!';
+        thanksTitle.textContent = 'Thank you, ' + name + '!';
         thanksText.textContent = coming
-          ? 'Your RSVP is in. We can\u2019t wait to celebrate with you on Friday, 13 Nov.'
+          ? 'Your RSVP is in. We can\u2019t wait to celebrate with you on Friday, 13 Nov, 3\u20136 PM at 1, Ayedun Street, Olowora.'
           : 'Thanks for letting us know. We\u2019ll miss you, and we\u2019re grateful for your love and prayers.';
+        document.querySelector('main').hidden = true;
         thanks.hidden = false;
-        thanks.scrollIntoView({ block: 'center' });
+        window.scrollTo(0, 0);
         thanks.focus();
       })
       .catch(fail);
