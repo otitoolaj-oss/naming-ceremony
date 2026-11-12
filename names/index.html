@@ -301,8 +301,7 @@ var BABY = {
     s.appendChild(el('p', 'sub pop', 'With joy & gratitude, ' + BABY.parents + '.'));
     var row = el('div', 'end-row pop'); row.style.setProperty('--d', '.9s');
     var again = el('button', 'end-btn', 'Watch again'); again.type = 'button'; again.id = 'replay-btn';
-    var share = el('button', 'end-btn alt', 'Share'); share.type = 'button'; share.id = 'share-btn';
-    row.appendChild(again); row.appendChild(share);
+    row.appendChild(again);
     s.appendChild(row);
   }, { manual: true });
 
@@ -391,15 +390,9 @@ var BABY = {
   slidesEl.addEventListener('click', function (e) {
     if (e.target.id === 'start-btn') { e.stopPropagation(); startMusic(); show(1); }
     if (e.target.id === 'replay-btn') { e.stopPropagation(); startMusic(); show(1); }
-    if (e.target.id === 'share-btn') {
-      e.stopPropagation();
-      var url = location.href.split('#')[0];
-      if (navigator.share) { navigator.share({ title: 'Meet Baby ' + BABY.surname, url: url }).catch(function () {}); }
-      else if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function () { e.target.textContent = 'Link copied'; }, function () {}); }
-    }
   });
   // buttons sit above the tap zones
-  ['start-btn', 'replay-btn', 'share-btn'].forEach(function (id) {
+  ['start-btn', 'replay-btn'].forEach(function (id) {
     var b = document.getElementById(id); b.style.position = 'relative'; b.style.zIndex = 6;
   });
 
