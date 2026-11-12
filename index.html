@@ -102,7 +102,7 @@
     padding: 10px 10px 40px;
     width: min(46%, 260px);
   }
-  .polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; max-width: 100%; }
+  .polaroid img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 6px; max-width: 100%; }
   .polaroid.left { transform: rotate(-6deg) translateY(8px); margin-right: -14px; }
   .polaroid.right { transform: rotate(5deg) translateY(-6px); position: relative; z-index: 1; }
   .hello {
@@ -230,6 +230,11 @@
   .send[disabled] { opacity: 0.6; cursor: wait; }
   [hidden] { display: none !important; }
   @media (max-width: 600px) {
+    .photos { flex-direction: column; align-items: stretch; border-radius: 44% 56% 50% 50% / 30% 30% 34% 34%; padding: 36px 22px 76px; }
+    .polaroid { width: 68%; padding: 10px 10px 34px; }
+    .polaroid.left { align-self: flex-start; margin: 0; transform: rotate(-5deg); }
+    .polaroid.right { align-self: flex-end; margin: -22% 0 0; transform: rotate(5deg); }
+    .hello { bottom: 26px; }
     .details { grid-template-columns: minmax(0, 1fr); }
     .choices { grid-template-columns: minmax(0, 1fr); }
     .send { align-self: stretch; }
@@ -245,8 +250,8 @@
   </header>
 
   <section class="photos" aria-label="Photos of the baby">
-    <figure class="polaroid left" style="margin-block:0;margin-left:0"><img src="face.jpg" width="480" height="480" alt="The baby asleep in a knitted beanie"></figure>
-    <figure class="polaroid right" style="margin:0"><img src="hands.jpg" width="480" height="480" alt="The baby's tiny hands resting on his white onesie"></figure>
+    <figure class="polaroid left" style="margin-block:0;margin-left:0"><img src="face-480.jpg" srcset="face-480.jpg 480w, face-760.jpg 760w" sizes="(max-width: 600px) 68vw, 260px" width="480" height="480" decoding="async" alt="The baby asleep in a knitted beanie"></figure>
+    <figure class="polaroid right" style="margin:0"><img src="hands-480.jpg" srcset="hands-480.jpg 480w, hands-760.jpg 760w" sizes="(max-width: 600px) 68vw, 260px" width="480" height="480" decoding="async" alt="The baby's tiny hands resting on his white onesie"></figure>
     <div class="hello">Say hello!</div>
   </section>
 
